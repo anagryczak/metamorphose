@@ -22,3 +22,12 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+testjeu/nbproject/build-impl.xml
+testjeu/nbproject/genfiles.properties
+testjeu/nbproject/private/private.properties
+testjeu/nbproject/private/private.xml
+testjeu/nbproject/project.properties
+testjeu/nbproject/project.xml
+testjeu/manifest.mf
+testjeu/build/classes/.netbeans_automatic_build
+testjeu/build.xml
