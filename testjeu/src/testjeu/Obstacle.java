@@ -1,38 +1,50 @@
 package testjeu;
 
 import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.imageio.ImageIO;
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
 
 
 public class Obstacle {
-    private BufferedImage bloc;
-    private int x, y, l, h; 
+    private int x, y, w, h;
+    private BufferedImage texture;
     
-    public Obstacle() {
+    public Obstacle(int x, int y, int w, int h) {
+       this.x = x;
+       this.y = y;
+       this.w = w;
+       this.h = h;
+
         try {
-            this.bloc = ImageIO.read(getClass().getClassLoader().getResource("testjeu/image/bloco.png"));
-        } catch (IOException ex) {
-            Logger.getLogger(Avatar.class.getName()).log(Level.SEVERE, null, ex);
+            // carrega a imagem do package testjeu.image
+            texture = ImageIO.read(getClass().getResourceAsStream("/testjeu/image/bloc.png"));
+        } catch (Exception e) {
+            texture = null; // se der erro, evita travar
         }
-        
-        this.x = 400;
-        this.y = 400;
-        this.l = bloc.getWidth();
-        this.h = bloc.getHeight();
     }
+    
     
     public Rectangle getBounds() {
-        return new Rectangle(x, y, l, h);
+        return new Rectangle(x, y, w, h);
+    } 
+    
+    
+    public void draw(Graphics2D g) {
+        if (texture != null) {
+            // desenha a imagem ajustando ao tamanho w x h
+            g.drawImage(texture, x, y, w, h, null);
+        } else {
+            // fallback: se não conseguir carregar a imagem, desenha um retângulo cinza
+            g.setColor(java.awt.Color.GRAY);
+            g.fillRect(x, y, w, h);
+        }
     }
     
-    public void rendu(Graphics2D contexte) {
-        contexte.drawImage(this.bloc, (int) x, (int) y, null);
-    }
+    
+    
+    
+    
     
     
 }

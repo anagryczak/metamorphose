@@ -12,7 +12,6 @@ public class abertura {
     
     private BufferedImage paysage;
     public Avatar joueur;
-    public Obstacle bloc1; 
     
     public abertura() {
         //abre a imagem de fundo escolhida e colocada na pasta
@@ -23,25 +22,15 @@ public class abertura {
         }
         
         this.joueur = new Avatar();
-        this.bloc1 = new Obstacle ();
-    }
-    
-    public int getLargeurImage() {
-        return this.paysage.getWidth();
-    }
-
-    public int getHauteurImage() {
-        return this.paysage.getHeight();
     }
     
     public void miseAJour() {
-        this.joueur.miseAJour(this.bloc1);
+        this.joueur.miseAJour();
     }
 
     public void rendu(Graphics2D contexte) {
         contexte.drawImage(this.paysage, 0, 0, null);
         this.joueur.rendu(contexte);
-        this.bloc1.rendu(contexte);
     }
     
 }
