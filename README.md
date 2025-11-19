@@ -1,4 +1,4 @@
-# metamorphose
+# metamorphose 🐛
 
 Ce projet est un petit jeu 2D en Java mettant en scène une chenille évoluant dans un monde composé de blocs.
 Le joueur peut se déplacer, sauter, et interagir avec les obstacles, le tout avec un système de gravité et une gestion des collisions.
