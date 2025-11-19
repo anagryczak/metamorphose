@@ -10,7 +10,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.Timer;
 
-// <<< ALTERAÇÃO >>>
+
 import java.util.ArrayList;
 import java.util.List;
 import java.awt.Rectangle;
@@ -23,14 +23,13 @@ public class Testjeu extends JFrame implements ActionListener {
     private Timer timer;
     private abertura abertura;
 
-    // --- REMOVIDO: Obstacle bloco;
-    // <<< ALTERAÇÃO >>>
+    
     private List<Obstacle> blocos;
     private final int TILE = 64;
 
     // <<< ALTERAÇÃO >>> mapa baseado em matriz
     // 16 linhas (0–15), 24 colunas (0–23)
-    // 0 = vazio, 1 = bloco
+    // 0 = vazio, 1 = bloco, 2 = espinho
     private int[][] mapa = {
         // linha 0 (topo)
         {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
@@ -41,12 +40,12 @@ public class Testjeu extends JFrame implements ActionListener {
         {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
         {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
         {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-        {0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0},
+        {0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0},
         {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-        {0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0},
-        {0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0},
-        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0},
+        {0,0,0,0,0,0,0,0,0,1,1,2,2,0,0,0,0,0,0,0,0,0,0,0},
+        {1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
         {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
         {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
     };
@@ -67,9 +66,9 @@ public class Testjeu extends JFrame implements ActionListener {
         abertura = new abertura();
         this.addKeyListener(new clavier(abertura));
 
-        // --- REMOVIDO: bloco = new Obstacle(300, 700, 64, 64);
+       
 
-        // <<< ALTERAÇÃO >>> AGORA OS BLOCOS SÃO GERADOS A PARTIR DA MATRIZ
+        //OS BLOCOS SÃO GERADOS A PARTIR DA MATRIZ
         blocos = new ArrayList<>();
         gerarBlocosDoMapa();  // <<< AQUI
 
@@ -79,15 +78,24 @@ public class Testjeu extends JFrame implements ActionListener {
         this.setLocationRelativeTo(null);
     }
 
-    // <<< NOVO >>> cria blocos lendo o mapa[][]
+     // <<< NOVO >>> cria blocos lendo o mapa[][]
     private void gerarBlocosDoMapa() {
         blocos.clear();
         for (int lin = 0; lin < mapa.length; lin++) {
             for (int col = 0; col < mapa[0].length; col++) {
-                if (mapa[lin][col] == 1) {
-                    int x = col * TILE;
-                    int y = lin * TILE;
+
+                int tipo = mapa[lin][col];
+                if (tipo == 0) continue; // vazio
+
+                int x = col * TILE;
+                int y = lin * TILE;
+
+                if (tipo == 1) {
+                    // bloco normal
                     blocos.add(new Obstacle(x, y, TILE, TILE));
+                } else if (tipo == 2) {
+                    // bloco com espinho
+                    blocos.add(new Obstacle(x, y, TILE, TILE, true));
                 }
             }
         }

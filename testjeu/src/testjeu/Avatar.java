@@ -15,22 +15,22 @@ public class Avatar {
     // física vertical
     private double vy = 0.0;
     private boolean onGround = false;
+    private boolean jumping = false; // <<< NOVO: está na fase de subida do pulo?
 
     // constantes da gravidade (ajuste se quiser)
     private static final double G  = 2000.0;      // gravidade (px/s²)
     private static final double DT = 1.0 / 60.0;  // passo de tempo aproximado (60 FPS)
     private static final double VY_MAX = 2500.0;  // limite de velocidade para baixo
-    private static final double JUMP_VY = -800.0;  // força do pulo (ajuste no feeling)
+    private static final double JUMP_VY = -900.0;  // força do pulo (ajuste no feeling)
 
-    
-    
+    // controle de pulo
+    private static final double SHORT_JUMP_FACTOR = 0.4; // quanto cortar se soltar ↑ cedo
+    private static final double FAST_FALL_MULT    = 2.5; // multiplicador da gravidade com ↓
 
     // ---- NOVO: controle de escala e hitbox ----
     private double scale = 0.25;       // ajuste como quiser (0.5 = metade do tamanho original)
     private int drawW = 32, drawH = 20;
    
-    
-
     public Avatar() {
         try {
             // ajuste o caminho se seu sprite tiver outro nome
@@ -68,19 +68,37 @@ public class Avatar {
         if (gauche) x -= speed;
         if (droite) x += speed;
 
-       if (haut && onGround) {
+        // INÍCIO DO PULO: ↑ + no chão
+        if (haut && onGround) {
             vy = JUMP_VY;
             onGround = false;
+            jumping = true;
         }
 
-        // GRAVIDADE: acelera para baixo
-        vy += G * DT;
+        // GRAVIDADE
+        double gravidade = G;
+
+        // FAST-FALL: se está no ar, caindo e ↓ pressionado, aumenta a gravidade
+        if (bas && !onGround && vy > 0) {
+            gravidade *= FAST_FALL_MULT;
+        }
+
+        vy += gravidade * DT;
         if (vy > VY_MAX) vy = VY_MAX;
+
+        // PULO VARIÁVEL: se soltar ↑ enquanto ainda está subindo
+        if (!haut && jumping && vy < 0) {
+            vy *= SHORT_JUMP_FACTOR; // corta parte da subida
+            jumping = false;
+        }
+
+        // quando começar a cair, encerra a fase de "subida" do pulo
+        if (vy >= 0) {
+            jumping = false;
+        }
 
         // aplica a velocidade vertical na posição
         y += vy * DT;
-     
-        
     }
 
     public void rendu(Graphics2D g) {
@@ -92,23 +110,18 @@ public class Avatar {
         }
     }
     
-    
-    
     public void clampTo(int maxW, int maxH) {
-    if (x < 0) x = 0;
-    if (y < 0) y = 0;
+        if (x < 0) x = 0;
+        if (y < 0) y = 0;
 
-    if (x + drawW > maxW) x = maxW - drawW;
-    if (y + drawH > maxH) y = maxH - drawH;
+        if (x + drawW > maxW) x = maxW - drawW;
+        if (y + drawH > maxH) y = maxH - drawH;
 
-    // caso raro: se a sprite for maior que a tela
-    if (drawW > maxW) x = 0;
-    if (drawH > maxH) y = 0;
-  }  
+        // caso raro: se a sprite for maior que a tela
+        if (drawW > maxW) x = 0;
+        if (drawH > maxH) y = 0;
+    }  
     
-    
-    
-
     // ---- NOVO: retângulo para colisão (AABB) ----
     public Rectangle getBounds() {
         return new Rectangle((int) x, (int) y, drawW, drawH);
@@ -128,13 +141,10 @@ public class Avatar {
     public boolean isOnGround() { return onGround; }
     public void setOnGround(boolean v) { onGround = v; }
 
-
     // setters/flags de movimento (mantém seu teclado)
     public void setGauche(boolean v) { this.gauche = v; }
     public void setDroite(boolean v) { this.droite = v; }
     public void setHaut(boolean v)   { this.haut = v; }
     public void setBas(boolean v)    { this.bas = v; }
-    
-   
-    
 }
+
