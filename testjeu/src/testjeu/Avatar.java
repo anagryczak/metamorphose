@@ -15,10 +15,13 @@ public class Avatar {
     private BufferedImage joueur, paysage;
     protected double x, y, dx, dy, nx, ny;
     private boolean gauche, droite, haut, bas;
-    private int vitx = 10, vity = 10;
+    private int vitx = 10, vity = 20;
     private int ha_j, la_j, ha_p, la_p; 
-    private double gravite, dgrav;
+    private double gravite = 0, dgrav, vit_saut, vit_max;
     private static final double scalep = 2, scalej = 2;
+    private boolean surSol = false;
+    private boolean sautEnCours = false;
+    private boolean hautAvant = false;
 
     public Avatar() {
         try {
@@ -75,16 +78,34 @@ public class Avatar {
     public void miseAJour(List<Obstacle> blocs) {
         
         dgrav = 0.5;
+        vit_saut = -20;
         dx = 0;
-        dy= 0;
+        vit_max = 30;
+        //dy= 0;
         
         if (this.gauche) { dx -= vitx;}
         if (this.droite) { dx += vitx;}
-        if (this.haut)   { dy -= vity;}
-        if (this.bas)    { dy += vity;}
+        
+        boolean hautActuel = this.haut;
+        boolean hautJustPressed  =  hautActuel && !hautAvant;
+        boolean hautJustReleased = !hautActuel &&  hautAvant;
+        hautAvant = hautActuel;
+
+        if (gravite < vit_max){
+                gravite = gravite + dgrav;
+        }
+        if (hautJustPressed && surSol && !hautJustReleased) {
+            gravite = vit_saut;   // impulso pra cima (negativo)
+            sautEnCours = true;      // estamos num pulo que pode ser controlado
+            surSol = false;
+        }
+        if (hautJustReleased && sautEnCours && gravite < 0) {
+            gravite *= 0.5;      // corta parte da velocidade pra cima → pulo mais baixo
+            sautEnCours = false; // depois disso não controlamos mais esse pulo
+        }
         
         nx = x + dx; 
-        ny = y + dy + gravite;
+        ny = y + gravite;
         Rectangle prox_x = new Rectangle((int)nx, (int)y, la_j, ha_j);
         Rectangle prox_y = new Rectangle((int)x, (int)ny, la_j, ha_j);
         
@@ -92,10 +113,11 @@ public class Avatar {
             x = nx;
         }
         if ((ny <= ha_p-ha_j) && (ny >= 0) && (!colision(prox_y, blocs))) {
-            gravite = gravite + dgrav;
+            surSol = false;
             y = ny;
         } else {
             gravite = 0;
+            surSol = true;
         }
         
     }
