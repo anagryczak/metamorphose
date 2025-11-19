@@ -18,7 +18,7 @@ public class Avatar {
     private int vitx = 10, vity = 20;
     private int ha_j, la_j, ha_p, la_p; 
     private double gravite = 0, dgrav, vit_saut, vit_max;
-    private static final double scalep = 2, scalej = 2;
+    private static final double scalep = 2, scalej = 1.5;
     private boolean surSol = false;
     private boolean sautEnCours = false;
     private boolean hautAvant = false;

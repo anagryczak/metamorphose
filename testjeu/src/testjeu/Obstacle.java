@@ -12,7 +12,7 @@ import java.awt.Rectangle;
 public class Obstacle {
     private BufferedImage bloc;
     private int x, y, l, h;
-    private static final double scale = 2;
+    private static final double scale = 1;
     
     public Obstacle(int x, int y) {
         try {
