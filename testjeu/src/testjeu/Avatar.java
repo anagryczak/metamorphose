@@ -12,15 +12,18 @@ import java.util.List;
 public class Avatar {
 
     // --- Sprites et images ---
-    private BufferedImage joueur, paysage;
+    private BufferedImage joueur, paysage, game_over;
     private BufferedImage[] frames;        // tableau de sprites d’animation
     private int frameIndex = 0;            // index du sprite courant
     private int frameCounter = 0;          // compteur pour le délai d’animation
     private int frameDelay = 4;            // nombre de mises à jour avant de changer de frame
     private boolean faceDroite = true;     // true = regarde à droite, false = à gauche
 
-    // --- État de vie ---
+
+    // --- Vies du joueur ---
+    private int vies = 3;                  // nombre de vies au départ
     private boolean enVie = true;          // true tant que le personnage est vivant
+    private double xinit, yinit; // position de réapparition (respawn)
 
     // --- Position et mouvement ---
     protected double x, y, dx, dy, nx, ny; // x,y = position; dx,dy = déplacement; nx,ny = position future
@@ -78,14 +81,22 @@ public class Avatar {
             int nouvelleHauteurPaysage = (int) (imgOriginalPaysage.getHeight() * scalePaysage);
 
             this.paysage = redimensionar(imgOriginalPaysage, nouvelleLargeurPaysage, nouvelleHauteurPaysage);
-
+            
+            // --- Chargement ame over paysage ---
+            this.game_over = ImageIO.read(getClass().getClassLoader().getResource("testjeu/image/game_over.png"));
+            
         } catch (IOException ex) {
             Logger.getLogger(Avatar.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         // --- Position initiale du joueur ---
+        
         this.x = 100;
-        this.y = 800;
+        this.y = 900;
+        
+        // mémoriser la position de départ pour le respawn
+        this.xinit = this.x;
+        this.yinit = this.y;
 
         // --- Initialisation des drapeaux de mouvement ---
         this.gauche = false;
@@ -124,6 +135,11 @@ public class Avatar {
 
     // --- Mise à jour de la logique du joueur ---
     public void miseAJour(List<Obstacle> blocs) {
+        
+        // si le joueur n’est plus en vie et n’a plus de vies, on ne met plus à jour
+        if (!enVie && vies <= 0) {
+            return;
+        }
 
         // paramètres physiques
         dgrav = 0.5;          // accélération de la gravité
@@ -190,7 +206,7 @@ public class Avatar {
 
         // --- Condition de “mort” par sortie en bas du niveau ---
         if (y > ha_p - ha_j - 10) {
-            enVie = false;
+            gererMort();
         }
 
         // --- Animation des frames (uniquement si on se déplace horizontalement et qu’on est au sol) ---
@@ -218,20 +234,44 @@ public class Avatar {
         }
         return false;
     }
+    
+    private void gererMort() {
+        // le joueur vient de mourir (chute ou autre)
+        vies--;
+
+        if (vies > 0) {
+            // il reste des vies → on réapparaît
+            enVie = true;
+
+            // remettre le joueur à la position de départ
+            x = xinit;
+            y = yinit;
+
+            // réinitialiser la physique verticale
+            gravite = 0;
+            surSol = false;
+            sautEnCours = false;
+
+        } else {
+            // plus de vies → game over (le joueur reste mort)
+            enVie = false;
+        }
+    }
 
     // --- Rendu graphique du joueur ---
     public void rendu(Graphics2D contexte) {
+        
+        // si le joueur n’a plus de vies, on ne l’affiche plus
+        if (!enVie && vies <= 0) {
+            return;
+        }
+        
         if (faceDroite) {
             // affichage normal (vers la droite)
             contexte.drawImage(frames[frameIndex], (int) x, (int) y, null);
         } else {
             // affichage miroir horizontal (vers la gauche)
-            contexte.drawImage(frames[frameIndex],
-                               (int) x + la_j,
-                               (int) y,
-                               -la_j,
-                               ha_j,
-                               null);
+            contexte.drawImage(frames[frameIndex],(int) x + la_j,(int) y,-la_j, ha_j,null);
         }
     }
 
@@ -242,6 +282,15 @@ public class Avatar {
         g2.drawImage(img, 0, 0, nouvelleLargeur, nouvelleHauteur, null);
         g2.dispose();
         return nouvelle;
+    }
+    
+    // --- Accesseurs pour le nombre de vies et l’état de vie ---
+    public int getVies() {
+        return vies;
+    }
+
+    public boolean estEnVie() {
+        return enVie;
     }
 
 }

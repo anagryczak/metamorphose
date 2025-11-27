@@ -22,6 +22,14 @@ public class clavier implements KeyListener {
     @Override
     public void keyPressed(KeyEvent evt) {
 
+        // Si le jeu est en "game over" (plus de vies) et qu’on appuie sur ESPACE → reset
+        if (evt.getKeyCode() == KeyEvent.VK_SPACE) {
+            if (scene.joueur.getVies() <= 0) {
+                scene.reinitialiserJeu();
+                return; // on sort pour éviter de traiter d’autres touches
+            }
+        }
+
         // Flèche droite → déplacement vers la droite
         if (evt.getKeyCode() == KeyEvent.VK_RIGHT) {
             this.scene.joueur.setDroite(true);
