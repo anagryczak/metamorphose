@@ -25,16 +25,23 @@ public class Avatar {
     // --- Position et mouvement ---
     protected double x, y, dx, dy, nx, ny; // x,y = position; dx,dy = déplacement; nx,ny = position future
     private boolean gauche, droite, haut, bas; // drapeaux pour les touches
-    private int vitx = 10, vity = 20;      // vitesses de base (horizontale/verticale, ici vity n’est plus utilisée)
+    private int vitx = 10, vity = 20;      // vity não é mais usada
 
     // --- Dimensions ---
     private int ha_j, la_j, ha_p, la_p;    // dimensions du joueur et du paysage
 
-    // --- Gravité et saut ---
-    private double gravite = 0;            // vitesse verticale actuelle
-    private double dgrav;                  // accélération due à la gravité
-    private double vitesseSaut;            // impulsion initiale du saut
-    private double vitesseMaxChute;        // vitesse maximale de chute
+    // --- Gravité et saut (corrigido) ---
+    private double vy = 0.0;               // vitesse verticale (px/s)
+
+    // Tratamos "gravite" como ACELERAÇÃO base (G), não como velocidade
+    private double gravite = 4400.0;       // aceleração da gravidade (px/s²) – ajuste o feeling aqui
+    private double dt = 1.0 / 60.0;        // pas de temps approximatif (60 FPS)
+    private double jump_vy = -1400.0;       // impulsion initiale du saut (px/s, négatif = vers le haut)
+    private double vy_max = 3000.0;        // vitesse maximale de chute
+
+    // pulo variável + fast-fall
+    private static final double SHORT_JUMP_FACTOR = 0.5; // quanto cortar se soltar ↑ cedo
+    private static final double FAST_FALL_MULT    = 3.0; // multipl. da gravidade com seta pra baixo
 
     // --- Facteurs d’échelle pour les images ---
     private static final double scalePaysage = 2;
@@ -125,12 +132,7 @@ public class Avatar {
     // --- Mise à jour de la logique du joueur ---
     public void miseAJour(List<Obstacle> blocs) {
 
-        // paramètres physiques
-        dgrav = 0.5;          // accélération de la gravité
-        vitesseSaut = -20;    // impulsion initiale du saut (vers le haut)
-        vitesseMaxChute = 30; // vitesse maximale de chute
-
-        dx = 0;               // on ré-initialise le déplacement horizontal
+        dx = 0;  // déplacement horizontal à recalcular a cada frame
 
         // --- Lecture des entrées de déplacement horizontal ---
         if (this.gauche) {
@@ -143,35 +145,43 @@ public class Avatar {
         }
 
         // --- Gestion des événements de la touche haut (saut) ---
-        boolean hautActuel = this.haut;
-        boolean hautJustPressed  =  hautActuel && !hautAvant;   // vient d’être pressée
-        boolean hautJustReleased = !hautActuel &&  hautAvant;   // vient d’être relâchée
-        hautAvant = hautActuel; // on mémorise l’état pour la prochaine frame
-
-        // --- Gravité : augmentation progressive de la vitesse verticale ---
-        if (gravite < vitesseMaxChute) {
-            gravite = gravite + dgrav;
-        }
+        boolean hautActuel      = this.haut;
+        boolean hautJustPressed =  hautActuel && !hautAvant;   // vient d’être pressée
+        boolean hautJustReleased= !hautActuel &&  hautAvant;   // vient d’être relâchée
+        hautAvant = hautActuel; // mémorise l’état pour la prochaine frame
 
         // --- Début du saut : uniquement si on est sur le sol ---
-        if (hautJustPressed && surSol && !hautJustReleased) {
-            gravite = vitesseSaut;   // impulsion vers le haut (valeur négative)
-            sautEnCours = true;      // le saut est en cours et peut encore être “raccourci”
+        if (hautJustPressed && surSol) {
+            vy = jump_vy;       // impulso pra cima (negativo)
             surSol = false;
+            sautEnCours = true; // o pulo ainda pode ser “cortado”
         }
 
+        // --- Gravité (com fast-fall) ---
+        // usamos um "g" local para não explodir gravite acumulando FAST_FALL_MULT
+        double g = gravite; // aceleração base
+        if (bas && !surSol && vy > 0) {
+            // seta para baixo → cai mais rápido
+            g *= FAST_FALL_MULT;
+        }
+
+        // integra velocidade
+        vy += g * dt;
+        if (vy > vy_max) vy = vy_max;
+
         // --- Saut variable : si on relâche la touche pendant la montée, on réduit la hauteur ---
-        if (hautJustReleased && sautEnCours && gravite < 0) {
-            gravite *= 0.5;          // réduit la vitesse ascendante → saut plus petit
-            sautEnCours = false;     // après ça, le saut n’est plus contrôlé
+        if (hautJustReleased && sautEnCours && vy < 0) {
+            vy *= SHORT_JUMP_FACTOR;      // corta parte da subida → pulo menor
+            sautEnCours = false;
         }
 
         // --- Calcul des positions futures ---
         nx = x + dx;
-        ny = y + gravite;
+        // AQUI estava o bug antes: era y + vy + dt (errado)
+        ny = y + vy * dt;  // usa velocidade (px/s) * dt (s) → deslocamento em pixels
 
-        Rectangle prox_x = new Rectangle((int) nx, (int) y, la_j, ha_j);
-        Rectangle prox_y = new Rectangle((int) x, (int) ny, la_j, ha_j);
+        Rectangle prox_x = new Rectangle((int) nx, (int) y,  la_j, ha_j);
+        Rectangle prox_y = new Rectangle((int) x,  (int) ny, la_j, ha_j);
 
         // --- Collision et mise à jour en X ---
         if ((nx <= la_p - la_j) && (nx >= 0) && (!colision(prox_x, blocs))) {
@@ -184,8 +194,11 @@ public class Avatar {
             y = ny;
         } else {
             // on a touché un bloc ou la limite verticale
-            gravite = 0;
-            surSol = true;
+            if (vy > 0) {
+                // só considera “no chão” se estava caindo
+                surSol = true;
+            }
+            vy = 0;
         }
 
         // --- Condition de “mort” par sortie en bas du niveau ---
