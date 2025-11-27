@@ -33,7 +33,7 @@ public class Avatar {
     // --- Dimensions ---
     private int ha_j, la_j, ha_p, la_p;    // dimensions du joueur et du paysage
 
-    // --- Gravité et saut (corrigido) ---
+    // --- Gravité et saut  ---
     private double vy = 0.0;               // vitesse verticale (px/s)
 
     // Tratamos "gravite" como ACELERAÇÃO base (G), não como velocidade
@@ -251,6 +251,11 @@ public class Avatar {
     private void gererMort() {
         // le joueur vient de mourir (chute ou autre)
         vies--;
+        gauche = false;
+        droite = false;
+        haut = false;
+        bas = false;
+        hautAvant = false;
 
         if (vies > 0) {
             // il reste des vies → on réapparaît
@@ -261,7 +266,7 @@ public class Avatar {
             y = yinit;
 
             // réinitialiser la physique verticale
-            gravite = 0;
+            vy = 0;
             surSol = false;
             sautEnCours = false;
 
