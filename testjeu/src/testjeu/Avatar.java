@@ -18,12 +18,13 @@ public class Avatar {
     private int frameCounter = 0;   
     private int frameDelay = 4;
     private boolean faceDroite = true;
+    private boolean enVie = true;
     protected double x, y, dx, dy, nx, ny;
     private boolean gauche, droite, haut, bas;
     private int vitx = 10, vity = 20;
     private int ha_j, la_j, ha_p, la_p; 
     private double gravite = 0, dgrav, vit_saut, vit_max;
-    private static final double scalep = 2, scalej = 1.5;
+    private static final double scalep = 2, scalej = 1.2;
     private boolean surSol = false;
     private boolean sautEnCours = false;
     private boolean hautAvant = false;
@@ -136,6 +137,10 @@ public class Avatar {
         } else {
             gravite = 0;
             surSol = true;
+        }
+        
+        if (y > ha_p-ha_j-10){
+            enVie = false;
         }
         
         if (dx != 0 && surSol) {
