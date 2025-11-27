@@ -1,62 +1,72 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package testjeu;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 /**
- *
- * @author manal.benaissa
+ * Classe responsable de l'écoute du clavier.
+ * Lorsqu'une touche est appuyée ou relâchée, 
+ * des événements (events) sont générés et interceptés ici.
  */
-//Ok ! Ici c'est pour écouter votre clavier ! Quand une touche du clavier est appuyé, un "event" est émis. Vous pouvez traiter l'event en question comme suit :
 public class clavier implements KeyListener {
-    
-    private abertura abertura;
 
-    public clavier(abertura abertura) {
-        this.abertura = abertura;
+    // Référence vers la scène du jeu (où se trouve l’avatar)
+    private ouverture scene;
+
+    // Constructeur : on reçoit la scène pour pouvoir modifier l’état du joueur
+    public clavier(ouverture scene) {
+        this.scene = scene;
     }
-    
+
+    // --- Quand une touche est pressée ---
     @Override
     public void keyPressed(KeyEvent evt) {
-        if (evt.getKeyCode() == evt.VK_RIGHT) {
-            this.abertura.joueur.setDroite(true);
+
+        // Flèche droite → déplacement vers la droite
+        if (evt.getKeyCode() == KeyEvent.VK_RIGHT) {
+            this.scene.joueur.setDroite(true);
         }
-        if (evt.getKeyCode() == evt.VK_LEFT) {
-            this.abertura.joueur.setGauche(true);
+
+        // Flèche gauche → déplacement vers la gauche
+        if (evt.getKeyCode() == KeyEvent.VK_LEFT) {
+            this.scene.joueur.setGauche(true);
         }
-        if (evt.getKeyCode() == evt.VK_UP) {
-            this.abertura.joueur.setHaut(true);
+
+        // Flèche haut → saut
+        if (evt.getKeyCode() == KeyEvent.VK_UP) {
+            this.scene.joueur.setHaut(true);
         }
-        if (evt.getKeyCode() == evt.VK_DOWN) {
-            this.abertura.joueur.setBas(true);
+
+        // Flèche bas (actuellement non utilisée dans la physique)
+        if (evt.getKeyCode() == KeyEvent.VK_DOWN) {
+            this.scene.joueur.setBas(true);
         }
     }
 
+    // --- Quand une touche est relâchée ---
     @Override
     public void keyReleased(KeyEvent evt) {
-        if (evt.getKeyCode() == evt.VK_RIGHT) {
-            this.abertura.joueur.setDroite(false);
+
+        if (evt.getKeyCode() == KeyEvent.VK_RIGHT) {
+            this.scene.joueur.setDroite(false);
         }
-        if (evt.getKeyCode() == evt.VK_LEFT) {
-            this.abertura.joueur.setGauche(false);
+
+        if (evt.getKeyCode() == KeyEvent.VK_LEFT) {
+            this.scene.joueur.setGauche(false);
         }
-        if (evt.getKeyCode() == evt.VK_UP) {
-            this.abertura.joueur.setHaut(false);
+
+        if (evt.getKeyCode() == KeyEvent.VK_UP) {
+            this.scene.joueur.setHaut(false);
         }
-        if (evt.getKeyCode() == evt.VK_DOWN) {
-            this.abertura.joueur.setBas(false);
+
+        if (evt.getKeyCode() == KeyEvent.VK_DOWN) {
+            this.scene.joueur.setBas(false);
         }
     }
-    
 
+    // --- Méthode non utilisée (nécessaire car imposée par l’interface KeyListener) ---
     @Override
     public void keyTyped(KeyEvent event) {
-        //Nothing to do here !
+        // Rien à faire ici !
     }
-
-
 }
