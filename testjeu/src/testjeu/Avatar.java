@@ -13,6 +13,10 @@ import java.util.List;
 public class Avatar {
 
     private BufferedImage joueur, paysage;
+    private BufferedImage[] frames;  
+    private int frameIndex = 0;     
+    private int frameCounter = 0;   
+    private int frameDelay = 4;
     protected double x, y, dx, dy, nx, ny;
     private boolean gauche, droite, haut, bas;
     private int vitx = 10, vity = 20;
@@ -25,12 +29,24 @@ public class Avatar {
 
     public Avatar() {
         try {
-            BufferedImage imgOriginalJ = ImageIO.read(getClass().getClassLoader().getResource("testjeu/image/joueur.png"));
+            String[] nomes = {
+                "testjeu/image/joueur_0.png",
+                "testjeu/image/joueur_1.png"
+            };
 
-            int novaLarguraJ = (int) (imgOriginalJ.getWidth()  * scalej);
-            int novaAlturaJ  = (int) (imgOriginalJ.getHeight() * scalej);
+            frames = new BufferedImage[nomes.length];
 
-            this.joueur = redimensionar(imgOriginalJ, novaLarguraJ, novaAlturaJ);
+            for (int i = 0; i < nomes.length; i++) {
+                BufferedImage original = ImageIO.read(getClass().getClassLoader().getResource(nomes[i]));
+
+                int novaLargura = (int)(original.getWidth() * scalej);
+                int novaAltura = (int)(original.getHeight() * scalej);
+
+                frames[i] = redimensionar(original, novaLargura, novaAltura);
+            }
+            
+            this.joueur = frames[0];
+            
             BufferedImage imgOriginalp = ImageIO.read(getClass().getClassLoader().getResource("testjeu/image/paysage.png"));
 
             int novaLargurap = (int) (imgOriginalp.getWidth()  * scalep);
@@ -49,8 +65,8 @@ public class Avatar {
         this.bas    = false;
         this.ha_p = paysage.getHeight();
         this.la_p = paysage.getWidth();
-        this.ha_j = joueur.getHeight();
-        this.la_j = joueur.getWidth();
+        this.ha_j = frames[0].getHeight();
+        this.la_j = frames[0].getWidth();
     }
     
     public Rectangle getBounds() {
@@ -120,6 +136,20 @@ public class Avatar {
             surSol = true;
         }
         
+        if (dx != 0 && surSol) {
+            frameCounter++;
+            if (frameCounter >= frameDelay) {
+                frameCounter = 0;
+                frameIndex++;
+            if (frameIndex >= frames.length) {
+                frameIndex = 0;  // volta pro primeiro frame
+            }
+        }
+        } else {
+    
+        frameIndex = 0;
+        }
+        
     }
     
     private boolean colision(Rectangle r, List<Obstacle> blocs) {
@@ -133,7 +163,7 @@ public class Avatar {
 
 
     public void rendu(Graphics2D contexte) {
-        contexte.drawImage(this.joueur, (int) x, (int) y, null);
+        contexte.drawImage(frames[frameIndex], (int)x, (int)y, null);
     }
     
     private BufferedImage redimensionar(BufferedImage img, int novaLargura, int novaAltura) {
