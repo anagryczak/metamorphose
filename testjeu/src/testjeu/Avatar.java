@@ -17,12 +17,9 @@ public class Avatar {
     private int frameIndex = 0;     
     private int frameCounter = 0;   
     private int frameDelay = 4;
+    private boolean faceDroite = true;
     protected double x, y, dx, dy, nx, ny;
-    
     private boolean gauche, droite, haut, bas;
-    
-    //ALOOOOOOOOOO
-    
     private int vitx = 10, vity = 20;
     private int ha_j, la_j, ha_p, la_p; 
     private double gravite = 0, dgrav, vit_saut, vit_max;
@@ -62,7 +59,7 @@ public class Avatar {
             Logger.getLogger(Avatar.class.getName()).log(Level.SEVERE, null, ex);
         }
         this.x = 100;
-        this.y = 100;
+        this.y = 800;
         this.gauche = false;
         this.droite = false;
         this.haut   = false;
@@ -103,8 +100,9 @@ public class Avatar {
         vit_max = 30;
         //dy= 0;
         
-        if (this.gauche) { dx -= vitx;}
-        if (this.droite) { dx += vitx;}
+        if (this.gauche) { dx -= vitx; faceDroite = false;}
+        if (this.droite) { dx += vitx; faceDroite = true;}
+        
         
         boolean hautActuel = this.haut;
         boolean hautJustPressed  =  hautActuel && !hautAvant;
@@ -167,7 +165,11 @@ public class Avatar {
 
 
     public void rendu(Graphics2D contexte) {
-        contexte.drawImage(frames[frameIndex], (int)x, (int)y, null);
+        if (faceDroite) {
+            contexte.drawImage(frames[frameIndex], (int)x, (int)y, null);
+        } else {
+            contexte.drawImage(frames[frameIndex],(int)x + la_j,(int)y, -la_j, ha_j, null);
+        }
     }
     
     private BufferedImage redimensionar(BufferedImage img, int novaLargura, int novaAltura) {
