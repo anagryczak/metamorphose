@@ -14,7 +14,11 @@ public class Avatar {
 
     private BufferedImage joueur, paysage;
     protected double x, y, dx, dy, nx, ny;
+    
     private boolean gauche, droite, haut, bas;
+    
+    //ALOOOOOOOOOO
+    
     private int vitx = 10, vity = 20;
     private int ha_j, la_j, ha_p, la_p; 
     private double gravite = 0, dgrav, vit_saut, vit_max;
