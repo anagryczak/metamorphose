@@ -14,6 +14,10 @@ public class ouverture {
     // --- Image de fond (paysage du niveau) ---
     private BufferedImage paysage;
     private static final double SCALE_PAYSAGE = 2;
+    
+    // --- HUD : icônes de vies ---
+    private BufferedImage coeurPlein;
+    private BufferedImage coeurVide;
 
     // --- Entités du jeu ---
     public Avatar joueur;
@@ -24,38 +28,46 @@ public class ouverture {
 
     // --- Carte du niveau : 0 = vide, 1 = bloc ---
     // Chaque ligne représente une rangée de tuiles.
+    // taille de la paysage en pixelart: 960x512 (30x16)
     private int[][] carte = {
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
     };
 
     public ouverture() {
         // --- Chargement et redimensionnement de l’image de fond ---
         try {
-            BufferedImage imgOriginal = ImageIO.read(
-                getClass().getClassLoader().getResource("testjeu/image/paysage.png")
-            );
+            BufferedImage imgOriginal = ImageIO.read(getClass().getClassLoader().getResource("testjeu/image/paysage.png"));
 
             int nouvelleLargeur = (int) (imgOriginal.getWidth() * SCALE_PAYSAGE);
             int nouvelleHauteur = (int) (imgOriginal.getHeight() * SCALE_PAYSAGE);
 
             this.paysage = redimensionner(imgOriginal, nouvelleLargeur, nouvelleHauteur);
+            
+            coeurPlein = ImageIO.read(
+                    getClass().getClassLoader().getResource("testjeu/image/coeurPlein.png")
+            );
+
+            coeurVide = ImageIO.read(
+                    getClass().getClassLoader().getResource("testjeu/image/coeurVide.png")
+            );
+
+
+            
         } catch (IOException ex) {
             Logger.getLogger(ouverture.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -83,6 +95,30 @@ public class ouverture {
     public void reinitialiserJeu() {
         this.joueur = new Avatar();
         // Si un jour tu as des ennemis ou autres états, tu pourras aussi les réinitialiser ici.
+    }
+    
+    private void dessinerVies(Graphics2D contexte) {
+        int viesActuelles = joueur.getVies();
+        int viesMax = joueur.getViesMax();
+
+        int margeX = 20;
+        int margeY = 20;
+        int espacement = 10;
+
+        int largeurCoeur = coeurPlein.getWidth();
+        int hauteurCoeur = coeurPlein.getHeight();
+
+        for (int i = 0; i < viesMax; i++) {
+
+            int x = margeX + i * (largeurCoeur + espacement);
+            int y = margeY;
+
+            if (i < viesActuelles) {
+                contexte.drawImage(coeurPlein, x, y, null);
+            } else {
+                contexte.drawImage(coeurVide, x, y, null);
+            }
+        }
     }
 
     // Redimensionner une image (utilisé pour le paysage)
@@ -120,27 +156,24 @@ public class ouverture {
         for (Obstacle b : blocs) {
             b.rendu(contexte);
         }
+        // 4. Dessiner tous les coeurs de ve
+        dessinerVies(contexte);
         
+        // 5. Si c’est game over…
         if (joueur.getVies() <= 0) {
-            // fond semi-transparent simple (facultatif)
-            contexte.setColor(new java.awt.Color(0, 0, 0, 150)); // noir avec transparence
-            contexte.fillRect(0, 0, paysage.getWidth(), paysage.getHeight());
 
-            // texte "GAME OVER"
-            contexte.setColor(java.awt.Color.WHITE);
-            contexte.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 48));
-            String msg = "GAME OVER";
-            String msg2 = "Appuyez sur ESPACE pour recommencer";
+            BufferedImage imgGO = joueur.getGameOverImage();
 
-            // centrer approximativement le texte
-            int centreX = paysage.getWidth() / 2;
-            int centreY = paysage.getHeight() / 2;
+            // dessine l’image au centre de l’écran
+            int x = (paysage.getWidth() - imgGO.getWidth()) / 2;
+            int y = (paysage.getHeight() - imgGO.getHeight()) / 2;
 
-            // Dessin du texte principal
-            contexte.drawString(msg, centreX - 150, centreY - 20);
-            // Dessin de la consigne
-            contexte.setFont(new java.awt.Font("Arial", java.awt.Font.PLAIN, 24));
-            contexte.drawString(msg2, centreX - 230, centreY + 20);
+            contexte.drawImage(imgGO, x, y, null);
+
+            contexte.setColor(new java.awt.Color(0,0,0,100));
+            contexte.fillRect(0,0,paysage.getWidth(),paysage.getHeight());
+            contexte.drawImage(imgGO, x, y, null);
+
         }
     }
 }

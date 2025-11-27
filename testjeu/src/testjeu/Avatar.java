@@ -21,7 +21,8 @@ public class Avatar {
 
 
     // --- Vies du joueur ---
-    private int vies = 3;                  // nombre de vies au départ
+    private int viesMax = 3;               // nombre de vies maximum
+    private int vies = viesMax;            // nombre de vies au départ
     private boolean enVie = true;          // true tant que le personnage est vivant
     private double xinit, yinit; // position de réapparition (respawn)
 
@@ -275,6 +276,11 @@ public class Avatar {
             enVie = false;
         }
     }
+    
+    // --- Rendu graphique du game over ---
+    public BufferedImage getGameOverImage() {
+        return game_over;
+    }
 
     // --- Rendu graphique du joueur ---
     public void rendu(Graphics2D contexte) {
@@ -309,6 +315,11 @@ public class Avatar {
 
     public boolean estEnVie() {
         return enVie;
+    }
+    
+    // nombre de vies maximum (pour dessiner les cœurs vides)
+    public int getViesMax() {
+        return viesMax;
     }
 
 }
